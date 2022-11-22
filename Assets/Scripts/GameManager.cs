@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
+using Color = UnityEngine.Color;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class GameManager : MonoBehaviour
     private const int GridSizeY = 20;
 
 
-    public bool [,] Grid = new bool[GridSizeX,GridSizeY];
+    public bool[,] Grid = new bool[GridSizeX,GridSizeY];
 
     public float GameSpeed => gameSpeed;
 
@@ -21,9 +22,57 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private List<BlockController> listPrefabs;
 
+    #region Test
+
+    public bool IsOpenTest;
+
+    [SerializeField] private SpriteRenderer displayDataPrefabs;
+
+    private SpriteRenderer[,] previewDisplay = new SpriteRenderer[GridSizeX, GridSizeY];
+
+    private void UpdateDisplayPreview()
+    {
+        if (!IsOpenTest) return;
+
+        for (int i = 0; i < GridSizeX; i++)
+        {
+            for (int j = 0; j < GridSizeY; j++)
+            {
+                var active = Grid[i, j];
+                var sprite = previewDisplay[i, j];
+
+                sprite.color = active ? Color.green : Color.red;
+            }
+        }
+    }
+
+    #endregion
+
     private void Awake()
     {
+        if(Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        if(IsOpenTest)
+        {
+            for (int i = 0; i < GridSizeX; i++)
+            {
+                for (int j = 0; j < GridSizeY; j++)
+                {
+                    var sprite = Instantiate(displayDataPrefabs, transform);
+                    sprite.transform.position = new Vector3(i, j, 0);
+
+                    previewDisplay[i, j] = sprite;
+                }
+
+            }
+        }
+
     }
 
     private void Start()
@@ -64,6 +113,8 @@ public class GameManager : MonoBehaviour
         var blockController = listPrefabs[index];
         var newBlock = Instantiate(blockController);
         Current = newBlock;
+
+        UpdateDisplayPreview();
     }
 }
 

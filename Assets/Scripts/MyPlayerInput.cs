@@ -16,10 +16,7 @@ public class MyPlayerInput : MonoBehaviour
             var value = IsPressLeft ? -1 : 1;
             var isMovable = GameManager.Instance.IsInside(GetPreviewPosition(value));
             if(isMovable)
-            {
-                MoveHorizontal(value);
-            }
-            
+                MoveHorizontal(value);         
         }
     }
 

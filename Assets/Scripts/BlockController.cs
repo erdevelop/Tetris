@@ -20,13 +20,9 @@ public class BlockController : MonoBehaviour
             var delay = GameManager.Instance.GameSpeed;
             yield return new WaitForSeconds(delay);
 
-
             var isMovable = GameManager.Instance.IsInside(GetPreviewPosition());
-
-            if(isMovable)
-            {
+            if (isMovable)
                 Move();
-            }
             else
             {
                 foreach (var piece in listPiece)
@@ -38,6 +34,7 @@ public class BlockController : MonoBehaviour
                 }
 
                 GameManager.Instance.Spawn();
+
                 break;
             }
 
