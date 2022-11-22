@@ -32,6 +32,7 @@ public class BlockController : MonoBehaviour
 
                     GameManager.Instance.Grid[x, y] = true;
                 }
+                GameManager.Instance.UpdateRemoveObjectController();
 
                 GameManager.Instance.Spawn();
 

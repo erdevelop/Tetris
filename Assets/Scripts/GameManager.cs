@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private List<BlockController> listPrefabs;
 
+    private List<BlockController> _listHistory = new List<BlockController>();
+
     #region Test
 
     public bool IsOpenTest;
@@ -42,6 +44,10 @@ public class GameManager : MonoBehaviour
                 var sprite = previewDisplay[i, j];
 
                 sprite.color = active ? Color.green : Color.red;
+
+                var color = sprite.color;
+                color.a = 0.5f;
+                sprite.color = color;
             }
         }
     }
@@ -113,8 +119,77 @@ public class GameManager : MonoBehaviour
         var blockController = listPrefabs[index];
         var newBlock = Instantiate(blockController);
         Current = newBlock;
+        _listHistory.Add(newBlock);
 
         UpdateDisplayPreview();
+    }
+    private bool IsFullRow(int index)
+    {
+        for (int i = 0; i < GridSizeX; i++)
+        {
+            if (Grid[i, index])
+                return false;
+        }
+        return true;
+    }
+    public void UpdateRemoveObjectController()
+    {
+        for (int i = 0; i < GridSizeY; i++)
+        {
+            var isFull = IsFullRow(i);
+            if (isFull)
+            {
+                //Remove
+                foreach (var myBlock in _listHistory)
+                {
+                    var willDestroy = new List<Transform>();
+
+                    foreach (var piece in myBlock.ListPiece)
+                    {
+                        int y = Mathf.RoundToInt(piece.position.y);
+
+                        if(y == i)
+                        {
+                            //delete
+                            willDestroy.Add(piece);
+                        }
+                        else if(y > i)
+                        {
+                            //move down
+                            var position = piece.position;
+                            position.y--;
+                            piece.position = position;
+                        }
+                    }
+                    //remove
+                    foreach (var item in willDestroy)
+                    {
+                        myBlock.ListPiece.Remove(item);
+                        Destroy(item.gameObject);
+                    }
+                    
+
+                }
+                //Change data
+                for (int j = 0; j < GridSizeX; j++)
+                {
+                    Grid[j, i] = false;
+
+                }
+                for (int j = i+1 ; j < GridSizeY; j++)
+                {
+                    for (int k = 0; k < GridSizeX; k++)
+                    {
+                        Grid[k, j - 1] = Grid[k, j];
+                    }
+
+                }
+                //call again
+                UpdateRemoveObjectController();
+                return;
+            }
+                
+        }
     }
 }
 

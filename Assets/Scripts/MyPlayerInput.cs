@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class MyPlayerInput : MonoBehaviour
@@ -7,7 +8,7 @@ public class MyPlayerInput : MonoBehaviour
     public bool IsPressLeft => Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow);
     public bool IsPressRight => Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow);
 
-    
+    public bool IsPressUp => Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow);
 
     private void Update()
     {
@@ -18,6 +19,35 @@ public class MyPlayerInput : MonoBehaviour
             if(isMovable)
                 MoveHorizontal(value);         
         }
+        else if(IsPressUp)
+        {
+            var IsRotatable = GameManager.Instance.IsInside(GetPreviewRotatePosition());
+            if (IsRotatable)
+                Rotate();
+            //Rotate
+            Rotate();
+        }
+    }
+
+    private List<Vector2> GetPreviewRotatePosition()
+    {
+        var result = new List<Vector2>();
+        var listPiece = GameManager.Instance.Current.ListPiece;
+        var pivot = GameManager.Instance.Current.transform.position;
+
+        foreach (var piece in listPiece)
+        {
+
+            var position = piece.position;
+
+            position -= pivot;
+            position = new Vector3(position.y, -position.x, 0);
+            position += pivot;
+
+            result.Add(position);
+        }
+        return result;
+
     }
 
     private List<Vector2> GetPreviewPosition(int value)
@@ -40,5 +70,13 @@ public class MyPlayerInput : MonoBehaviour
         var position = current.position;
         position.x += value;
         current.position = position;
+    }
+
+    private void Rotate()
+    {
+        var current = GameManager.Instance.Current.transform;
+        var angles = current.eulerAngles;
+        angles.z += -90;
+        current.eulerAngles = angles;
     }
 }
